@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+  <link rel="stylesheet" href="/stylesheets/stylesheet.css" />
+  <link rel="stylesheet" href="/stylesheets/article-stylesheet.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lato|Raleway:300" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-45165086-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+    gtag("config", "UA-45165086-3");
+  </script>
+  <style>
+    #tetris-background {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      z-index: -1;
+    }
+
+    @keyframes fall {
+      from {}
+
+      to {
+        top: 2500px;
+      }
+    }
+
+    .tetromino {
+      position: absolute;
+      top: -300px;
+      animation: fall;
+      animation-timing-function: linear;
+      animation-duration: 15s;
+      animation-fill-mode: forwards;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .block-row {
+      display: flex;
+    }
+
+    .block,
+    .empty-block {
+      box-sizing: border-box;
+      width: 60px;
+      height: 60px;
+      margin: 3px;
+      border-radius: 5px;
+    }
+
+    .block {
+      background-color: red;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="background"></div>
+  <div id="tetris-background"></div>
+
+  <div id="i-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="o-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="t-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="empty-block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="s-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="empty-block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="z-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="empty-block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="j-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <div id="l-shape" class="tetromino" style="display: none">
+    <div class="block-row">
+      <div class="empty-block"></div>
+      <div class="empty-block"></div>
+      <div class="block"></div>
+    </div>
+    <div class="block-row">
+      <div class="block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+  </div>
+  <script defer src="/scripts/background.js"></script>
+  <script>
+    let background = document.getElementById("tetris-background");
+    let shapes = [
+      {
+        name: "i",
+        color: "#F92338",
+      },
+      {
+        name: "o",
+        color: "#FEE356",
+      },
+      {
+        name: "t",
+        color: "#36E0FF",
+      },
+      {
+        name: "s",
+        color: "#53D504",
+      },
+      {
+        name: "z",
+        color: "#F8931D",
+      },
+      {
+        name: "j",
+        color: "#C973FF",
+      },
+      {
+        name: "l",
+        color: "#1C76BC",
+      },
+    ];
+    let tetrominoes = [];
+    let bag = [];
+
+    tetrominoLoop();
+
+    function tetrominoLoop() {
+      addTetromino();
+      clearTetrominoes();
+      setTimeout(tetrominoLoop, Math.random() * 1000 + 2000);
+    }
+
+    function addTetromino() {
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+      let shape = getShapeFromBag();
+      let shapeElement = document
+        .getElementById(shape.name + "-shape")
+        .cloneNode(true);
+      shapeElement.style.display = "flex";
+      shapeElement.style.transform =
+        "rotate(" + Math.floor(Math.random() * 4) * 90 + "deg)";
+      for (let row of shapeElement.children) {
+        for (let block of row.children) {
+          if (block.className === "block") {
+            block.style.background = shape.color;
+            block.style.boxShadow = "0px 0px 25px " + shape.color + "5b";
+          }
+        }
+      }
+      shapeElement.style.left =
+        Math.random() * (document.body.clientWidth - 210) + "px";
+      background.appendChild(shapeElement);
+      tetrominoes.push(shapeElement);
+    }
+
+    function getShapeFromBag() {
+      if (bag.length === 0) {
+        generateBag();
+      }
+      return bag.pop();
+    }
+
+    function generateBag() {
+      bag = [];
+      let contents = "";
+      for (let i = 0; i < 7; i++) {
+        let shape = getRandomShape(shapes);
+        while (contents.indexOf(shape.name) != -1) {
+          shape = getRandomShape(shapes);
+        }
+        bag[i] = shape;
+        contents += shape.name;
+      }
+    }
+
+    function getRandomShape() {
+      return shapes[Math.floor(Math.random() * shapes.length)];
+    }
+
+    function clearTetrominoes() {
+      for (let element of tetrominoes) {
+        if (element.getBoundingClientRect().top > background.offsetHeight) {
+          element.remove();
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
